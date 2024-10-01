@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Cuidado con los Códigos QR!</title>
+    <style>
+        body {
+            background-image: url('HACKER.jpg');
+            background-color: red;
+            background-size: cover; /* Ajusta el tamaño de la imagen para que cubra toda la pantalla */
+            background-position: center; /* Centra la imagen */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+            color: white; /* Cambia el color del texto a blanco para mayor contraste */
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .peligro {
+            background-color: red;
+            color: white;
+            font-size: 28px;
+            padding: 10px;
+            text-align: center;
+        }
+        h1, p {
+            text-align: center; /* Centra el texto */
+        }
+        ul {
+            list-style-type: none; /* Elimina los bullets de la lista */
+            padding: 0;
+            text-align: center;
+        }
+        li {
+            margin: 10px 0; /* Añade un espacio entre los elementos de la lista */
+        }
+    </style>
+</head>
+<body>
+    <div class="peligro"> ⚠️ A T E N C I Ó N ⚠️ </div>
+
+    <br>
+	<h1 style="text-align: center;  color: red; font-size: 24px;">👀Estamos observando tu información</h1>
+    <br>
+
+	<h2 style="text-align: center; color: red; font-size: 20px;">⚠️ Esto podría ser un Ransomware y <br> podríamos estar accediendo a tu información ⚠️ </h2>
+	<br>
+	<h2 style="text-align: center; font-size: 30px;"> ¡Ten cuidado con los códigos QR! </h2>
+<ul>
+    <li style="font-size: 18px;">💻 <strong>Sistema Operativo:</strong> <span id="os"></span></li>
+    <li style="font-size: 18px;">🌐 <strong>Navegador:</strong> <span id="browser"></span></li>
+    <li style="font-size: 18px;">📱 <strong>Tipo de Dispositivo:</strong> <span id="device"></span></li>
+    <li style="font-size: 18px;">📏 <strong>Resolución de Pantalla:</strong> <span id="resolution"></span></li>
+    <li style="font-size: 18px;">🌎 <strong>Idioma del Navegador:</strong> <span id="language"></span></li>
+    <li style="font-size: 18px;">🕐 <strong>Zona Horaria:</strong> <span id="timezone"></span></li>
+    <li style="font-size: 18px;">📡 <strong>Dirección IP:</strong> <span id="ip"></span></li>
+</ul>
+
+    <script>
+        // Detectar el Sistema Operativo
+        function getOS() {
+            let os = "Desconocido";
+            const userAgent = navigator.userAgent.toLowerCase();
+            if (userAgent.includes("win")) os = "Windows";
+            else if (userAgent.includes("mac")) os = "MacOS";
+            else if (userAgent.includes("linux")) os = "Linux";
+            else if (userAgent.includes("android")) os = "Android";
+            else if (userAgent.includes("iphone") || userAgent.includes("ipad")) os = "iOS";
+            return os;
+        }
+
+        // Detectar el Navegador
+        function getBrowser() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            if (userAgent.includes("chrome")) return "Chrome";
+            if (userAgent.includes("firefox")) return "Firefox";
+            if (userAgent.includes("safari") && !userAgent.includes("chrome")) return "Safari";
+            if (userAgent.includes("msie") || userAgent.includes("trident")) return "Internet Explorer";
+            if (userAgent.includes("edge")) return "Edge";
+            return "Otro";
+        }
+
+        // Detectar el tipo de dispositivo
+        function getDeviceType() {
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+            return isMobile ? "Móvil" : "Escritorio";
+        }
+
+        // Obtener la resolución de pantalla
+        function getScreenResolution() {
+            return `${window.screen.width}x${window.screen.height}`;
+        }
+
+        // Obtener el idioma del navegador
+        function getLanguage() {
+            return navigator.language || navigator.userLanguage;
+        }
+
+        // Obtener la zona horaria
+        function getTimeZone() {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone;
+        }
+
+        // Obtener la IP desde una API externa
+        async function getIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return "No se pudo obtener la IP";
+            }
+        }
+
+        // Registrar los datos en el servidor Flask
+        async function logData(data) {
+            try {
+                await fetch('http://localhost:5000/save_data', {  // Cambia la URL si Flask está en producción
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+            } catch (error) {
+                console.error('Error al enviar los datos:', error);
+            }
+        }
+
+        // Mostrar y registrar los datos
+        async function showAndLogData() {
+            const os = getOS();
+            const browser = getBrowser();
+            const device = getDeviceType();
+            const resolution = getScreenResolution();
+            const language = getLanguage();
+            const timezone = getTimeZone();
+            const ip = await getIP();
+
+            document.getElementById("os").textContent = os;
+            document.getElementById("browser").textContent = browser;
+            document.getElementById("device").textContent = device;
+            document.getElementById("resolution").textContent = resolution;
+            document.getElementById("language").textContent = language;
+            document.getElementById("timezone").textContent = timezone;
+            document.getElementById("ip").textContent = ip;
+
+            const data = {
+                os,
+                browser,
+                device,
+                resolution,
+                language,
+                timezone,
+                ip,
+            };
+
+            logData(data); // Enviar los datos al servidor Flask
+        }
+
+        showAndLogData();
+    </script>
+</body>
+</html>
